@@ -25,6 +25,9 @@ Web application/mobile application designed using Flutter
 	
 Serverless Cloud Functions
 
+	https://stackoverflow.com/questions/60555467/firebase-one-time-functions
+	can run functions directly through node, rather than through cloud functions
+
 	Function 1:
 		- daily function to check for new posts from a list of Instagram profiles
 		- params: list of JSON that defines profiles. Can probably query the `artists` collection from FireStore
@@ -115,6 +118,7 @@ Data architecture
 	Firestore
 		- artists: hold each artist's data. id: artist_slug
 			- name
+			- display_name
 			- name_thai
 			- instagram_url
 			- pic: populated by cloud function
@@ -138,9 +142,13 @@ Data architecture
 			- artist_slug?
 			- artist_name
 			- Firebase Storage link
-			- Instagram link
+			- instagram_post_url Instagram link
 			- Instagram description
+			- Instagram Display URL
 			- month (array that describes which months the image applies to)
 				- may not need this
+				
+			- page
+				- which page of the original instagram post the picture was on.
 
 dates stored in UTC, convert to Bangkok time on display

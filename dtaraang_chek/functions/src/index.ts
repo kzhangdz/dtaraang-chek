@@ -17,6 +17,7 @@ import vision from '@google-cloud/vision';
 import {onObjectFinalized} from "firebase-functions/v2/storage";
 //import {getStorage} from "firebase-admin/storage";
 import {onRequest} from "firebase-functions/v2/https";
+import {onSchedule} from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
 
 // Start writing functions
@@ -99,3 +100,8 @@ export const parseImage = onObjectFinalized(async (event) => {
     }
   }
 });
+
+// can schedule functions using cron
+// exports.scheduledFunctionCrontab = onSchedule("5 11 * * *", async (event) => {
+//   // ...
+// });
