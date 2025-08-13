@@ -1,0 +1,146 @@
+Set up Firebase Cloud Functions for data retrieval. 
+	- Should be able to schedule data retrieval
+	- Should be compatible with Node.js packages like tesseract_ocr
+
+One function for retrieving data from Instagram and saving images to Storage. May need to save description data to 
+One function for parsing the data using ocr and saving it to Cloud Firestore
+
+
+Application architecture
+Web application/mobile application designed using Flutter
+	- map with a sidebar for selecting filters (group, dates). Will display any locations it can
+	- On first open, show a list/box of group profile photos to filter for
+	- Can open that group box any time
+	- tapping a button near the bottom opens table form.
+		- will be similar to ArcGIS Hub
+		- might need a separate color to highlight entries not on the map
+	- ads on bottom
+	
+	- admin will add new groups manually into the `artists` collection
+	
+	Tech:
+		- Flutter
+		- Cloud Firestore
+		- Firebase Storage
+	
+Serverless Cloud Functions
+
+	Function 1:
+		- daily function to check for new posts from a list of Instagram profiles
+		- params: list of JSON that defines profiles. Can probably query the `artists` collection from FireStore
+		- If it's a new profile (link does not exist in the db), save the group info
+			- find the `artists` document in Firestore and save info
+			- profile picture saved to Storage
+		- Check if the instagram post is a schedule
+		- Then, check if an `image` exists w/ that Instagram link
+		- If isASchedule and imageNotExists, save the pictures into Storage and image info into `images`
+			- for two-image schedules, should the app display both?
+			
+		- No Instagram Api will allow post downloading.
+			- Can look into Apify for scraping
+				- Instagram Scraper, querying for posts within last few days will include pinned posts
+				- Need the display url
+				- If a schedule post has two pages, it can be found under `childPost`, under `displayImages`
+					[
+					  {
+						"id": "3687361290718217845",
+						"type": "Image",
+						"shortCode": "DMsI46zyQZ1",
+						"caption": "",
+						"hashtags": [],
+						"mentions": [],
+						"url": "https://www.instagram.com/p/DMsI46zyQZ1/",
+						"commentsCount": 0,
+						"firstComment": "",
+						"latestComments": [],
+						"dimensionsHeight": 1080,
+						"dimensionsWidth": 1080,
+						"displayUrl": "https://instagram.fsjk11-1.fna.fbcdn.net/v/t39.30808-6/525142745_1325369036261789_4011688181863516371_n.jpg?stp=dst-jpg_e35_s1080x1080_sh0.08_tt6&_nc_ht=instagram.fsjk11-1.fna.fbcdn.net&_nc_cat=105&_nc_oc=Q6cZ2QHrlnkyrBIoVUjhESiMG4KHIyP31SLRv70FXoTMEc-P94GIJtukA-YivLAe5-8-j-8&_nc_ohc=87KY5zEuZacQ7kNvwEkQBln&_nc_gid=ZU2tY3Ea8P5HTQZJ6CtjZQ&edm=APs17CUAAAAA&ccb=7-5&oh=00_AfXlIptlucZgeUc0mxU-ea3dIzs6fd7xTEMDE0a8E5E7xw&oe=68A1D5B6&_nc_sid=10d13b",
+						"images": [],
+						"alt": "Photo by PiXXiE on July 29, 2025. Pode ser um gráfico de 3 pessoas, pôster, revista e texto.",
+						"likesCount": null,
+						"timestamp": null,
+						"childPosts": [],
+						"ownerId": null
+					  },
+					  {
+						"id": "3687361287673296871",
+						"type": "Image",
+						"shortCode": "DMsI43-Szfn",
+						"caption": "",
+						"hashtags": [],
+						"mentions": [],
+						"url": "https://www.instagram.com/p/DMsI43-Szfn/",
+						"commentsCount": 0,
+						"firstComment": "",
+						"latestComments": [],
+						"dimensionsHeight": 1080,
+						"dimensionsWidth": 1080,
+						"displayUrl": "https://instagram.fsjk11-1.fna.fbcdn.net/v/t39.30808-6/524487268_1325369032928456_7414244652758186393_n.jpg?stp=dst-jpg_e35_s1080x1080_sh0.08_tt6&_nc_ht=instagram.fsjk11-1.fna.fbcdn.net&_nc_cat=108&_nc_oc=Q6cZ2QHrlnkyrBIoVUjhESiMG4KHIyP31SLRv70FXoTMEc-P94GIJtukA-YivLAe5-8-j-8&_nc_ohc=aKpDkxrdG3UQ7kNvwFzYPaI&_nc_gid=ZU2tY3Ea8P5HTQZJ6CtjZQ&edm=APs17CUAAAAA&ccb=7-5&oh=00_AfXXrpDplsO-gkdgYBAoySUHzAdJRc2jboJk6pn6xQCGkA&oe=68A1D236&_nc_sid=10d13b",
+						"images": [],
+						"alt": "Photo by PiXXiE on July 29, 2025. Pode ser uma imagem de ‎4 pessoas, revista, pôster e ‎texto que diz \"‎AUGUST 02 PiXXiE TIMETABLE สถตนที่สาม่วนใช้ านม่วนใจ้ ၉ CAT เชี่ยงใหม่ (Fostival) Hall, Contral Chiangmai Airport 15.00 เป็นดันไป שחפחזי 23 26 25 *.** **P*S Central beauty awards 2025 Award's) Chidilom 27 28 uColor Your Days ays สถานท่ ashion เวลา OWNDAYS Event) ขามพาราทอน รากอน 29 PIXXIE OFFIC AL OPENCHAT 31 งาน ce1 הפור Moonlight (Concert) สถาน nion Hall Hall, Union Mall เวลา เลือไปร ติดต้องานโขว์: 099- 192- -9669 คุณป้อ 0B- 12345-966 คุณตับ ติดต่องาน Morkefing. ponsorship LIT other 064- 928-914 (คุณเปย์นา 092-272-6729( คุณบีา‎\"‎‎.",
+						"likesCount": null,
+						"timestamp": null,
+						"childPosts": [],
+						"ownerId": null
+					  }
+					]
+					
+		- May need to use a Twitter alternative, Nitter
+		- No way to access Youtube community tab through the api
+		- Seems like I'll need to use idolmoveth
+			- test out a get request through postman
+			- <header class="entry-header"> contains the most recent schedule, but some schedules need two pictures
+			- each schedule is held in a <div class="row"> 
+				- the first row also contains the table of contents
+			- each image is held under <div class="img has-hover">
+				- underneath that, two levels down is <img src="http://url">
+			
+	Function 2: 
+		- on an artist's schedule document creation in `images`, parse the image's data using Gemini
+		- Save events into `events`.
+			- Skip any that say ถ่าย ซ้อม , has ****
+			- Generate the event slug using event_slug and start_date
+			- If an entry already exists, update `artist_slugs` and `artist_names` to include the artist
+			- Otherwise, create a new document
+				- will need to geocode for location data
+				
+	Tech:
+		- Instagram Basic Display API for querying data
+		- Gemini API for parsing image data
+		- Google Maps JavaScript API for geocoding locations
+	
+Data architecture
+
+	Firestore
+		- artists: hold each artist's data. id: artist_slug
+			- name
+			- name_thai
+			- instagram_url
+			- pic: populated by cloud function
+			- in the future, could display description, etc.
+		- events: holds each performance's data. events can have multiple artists id: event slug w/ start_date
+			- artist_slugs (array)
+			- artist_names (array)
+			- event_slug
+			- event_name
+			- start_date 
+			- end_date
+			- time (timestamp, stored in UTC)
+			- location_name
+			- coordinates (geopoint of lat/lon)
+			- image_id (maybe needs to be an array)
+			
+			- NOTE: due to the nature of needing to pick up the event names from AI,
+				it may be better to associate each event w/ one artist.
+		
+		- images: holds schedule image data. id: grouped under collection of artist_slug, then auto-generated id docs
+			- artist_slug?
+			- artist_name
+			- Firebase Storage link
+			- Instagram link
+			- Instagram description
+			- month (array that describes which months the image applies to)
+				- may not need this
+
+dates stored in UTC, convert to Bangkok time on display

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1086978762239",
+    "project_id": "dtaraang-chek",
+    "storage_bucket": "dtaraang-chek.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086978762239:android:d36d46ed145d3c2f9b33ca",
+        "android_client_info": {
+          "package_name": "com.example.dtaraang_chek"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA28eIJdmnN_5td6QeLDYzZ_n8LJD6oEEM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
