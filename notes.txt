@@ -137,6 +137,12 @@ Data architecture
 			
 			- NOTE: due to the nature of needing to pick up the event names from AI,
 				it may be better to associate each event w/ one artist.
+				
+			- use the instagram_source_url as the subcollection name
+			- potentially, each artist will have multiple instagram_source_urls
+			- this will allow us to save events for artists that do not have an `artist` page in the collections
+		
+		- events under subcollections under instagram_accounts collection
 		
 		- images: holds schedule image data. id: grouped under collection of artist_slug, then auto-generated id docs
 			- artist_slug?
@@ -150,5 +156,17 @@ Data architecture
 				
 			- page
 				- which page of the original instagram post the picture was on.
+				
+		artists
+			- will remain a separate collection
+		accounts -> events -> images
+		
+		-- go back to the original idea of artists, events, images
+		-- upload events w/ array of imageIDs and imageDisplayUrls
+		
+		
+		-- flow: PostApify -> feed post.getImages() to the functions in EventsGeminiApiClient
 
-dates stored in UTC, convert to Bangkok time on display
+dates stored in local time as a string
+
+need some sort of update scheme

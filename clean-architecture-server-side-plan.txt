@@ -1,0 +1,27 @@
+https://vitalii-zdanovskyi.medium.com/a-definitive-guide-to-building-a-nodejs-app-using-clean-architecture-and-typescript-41d01c6badfa
+
+app/
+  bin/    # This folder would be an entrypoint-script(s) to our app
+  dist/   # Here, we'll have the built code for production version
+  src/
+	entities/       # Core business objects will be here.
+		- should contain only the core data, without foreign key fields. If you need extra data, like updatedAt timestamps, return it in the DAO
+		- Artist: artistSlug
+			- artistName!
+			- displayName! -- connect an event based on the artistName, and display the displayName to be consistent
+			- instagramSourceURL!
+			- artistDisplayURL?
+			- description?
+			- name_thai
+		- Event: auto-generated id
+			- 
+			
+    config/         # App's constants/enums/other configuration
+    interfaces/     # Interfaces for different parts of an app
+    controllers/    # These are called by your implementation (infrastructure) layer.
+    use-cases/      # Core business logic goes here
+    infrastructure/ # This folder will contain actual implementations
+  temp/   # Misc. and temp files would go here, delete if not needed
+  .env    # An app's environment and sensitive information
+  package.json
+  tsconfig.json

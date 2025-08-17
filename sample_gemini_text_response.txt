@@ -1,0 +1,154 @@
+{
+  candidates: [ { content: [Object], finishReason: 'STOP', index: 0 } ],
+  usageMetadata: {
+    promptTokenCount: 383,
+    candidatesTokenCount: 1537,
+    totalTokenCount: 4613,
+    promptTokensDetails: [ [Object], [Object] ],
+    thoughtsTokenCount: 2693
+  },
+  modelVersion: 'gemini-2.5-pro',
+  responseId: 'SU6daLLlKp6V_uMPkZ_l4AU',
+  text: [Function (anonymous)],
+  functionCall: [Function (anonymous)],
+  functionCalls: [Function (anonymous)]
+}
+```json
+[
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-02",
+    "end_date": "2025-08-02",
+    "event_name": "งาน Sabb fest 2025 (เวทีเด็กแด้น) (Festival)",
+    "location": "ลานกิจกรรมเครื่องบิน Market (เมืองนครปฐม)",
+    "coordinates": {
+      "lat": 13.84051,
+      "lon": 100.04364
+    },
+    "time": "17:00"
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-03",
+    "end_date": "2025-08-03",
+    "event_name": "งาน LOVEiS Campus Tour (Concert)",
+    "location": "ลานหน้าอาคารกีฬาศาลายา, มหาวิทยาลัยธรรมศาสตร์ ศูนย์รังสิต",
+    "coordinates": {
+      "lat": 14.072236,
+      "lon": 100.600125
+    },
+    "time": "21:00"
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-04",
+    "end_date": "2025-08-05",
+    "event_name": "ถ่าย *****",
+    "location": null,
+    "coordinates": null,
+    "time": null
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-06",
+    "end_date": "2025-08-06",
+    "event_name": "ร้าน PROMPT จรัญฯ (ร้านกลางคืน)",
+    "location": "ร้าน PROMPT จรัญฯ (ร้านกลางคืน)",
+    "coordinates": {
+      "lat": 13.784518,
+      "lon": 100.485149
+    },
+    "time": "22:30"
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-07",
+    "end_date": "2025-08-07",
+    "event_name": "มาเบล ร่วมงาน Maison Kitsune FW25 Collection Press Preview",
+    "location": "ร้าน Maison Kitsune สาขา Emquartier",
+    "coordinates": {
+      "lat": 13.73142,
+      "lon": 100.56939
+    },
+    "time": "15:00"
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-08",
+    "end_date": "2025-08-13",
+    "event_name": "ถ่าย *****",
+    "location": null,
+    "coordinates": null,
+    "time": null
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-14",
+    "end_date": "2025-08-14",
+    "event_name": "ถ่ายงาน CHAPS",
+    "location": null,
+    "coordinates": null,
+    "time": null
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-15",
+    "end_date": "2025-08-15",
+    "event_name": "ถ่าย *****",
+    "location": null,
+    "coordinates": null,
+    "time": null
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-16",
+    "end_date": "2025-08-16",
+    "event_name": "งาน 2025 Weibo Cultural Exchange Night in Thailand (Awards)",
+    "location": "ศูนย์ประชุมแห่งชาติสิริกิติ์",
+    "coordinates": {
+      "lat": 13.725798,
+      "lon": 100.559235
+    },
+    "time": "18:30"
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-17",
+    "end_date": "2025-08-18",
+    "event_name": "ถ่าย *****",
+    "location": null,
+    "coordinates": null,
+    "time": null
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-19",
+    "end_date": "2025-08-19",
+    "event_name": "ร้าน Ratch Hour รัชโยธิน (ร้านกลางคืน)",
+    "location": "ร้าน Ratch Hour รัชโยธิน (ร้านกลางคืน)",
+    "coordinates": {
+      "lat": 13.83021,
+      "lon": 100.57009
+    },
+    "time": "23:00"
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-20",
+    "end_date": "2025-08-21",
+    "event_name": "ถ่าย *****",
+    "location": null,
+    "coordinates": null,
+    "time": null
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-22",
+    "end_date": "2025-08-22",
+    "event_name": "ร่วมงาน JEEP 50th BIRTHDAY PARTY",
+    "location": "งานปิด เฉพาะผู้ที่ได้รับเชิญ",
+    "coordinates": null,
+    "time": null
+  }
+]
+```

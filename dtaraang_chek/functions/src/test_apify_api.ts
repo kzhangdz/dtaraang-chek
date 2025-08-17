@@ -1,10 +1,37 @@
-import { initializeApp } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import dotenv from "dotenv";
+import { initializeApp } from 'firebase/app';
+import { getFirestore, GeoPoint } from 'firebase/firestore';
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { ApifyClient } from 'apify-client';
+import fetch from 'node-fetch';
 
-initializeApp();
-const db = getFirestore();
+import * as fs from 'fs';
+import path from 'path';
+
+import { getAnalytics } from "firebase/analytics";
+
+import { GoogleGenerativeAI} from "@google/generative-ai";
+
+// const firebaseConfig = {
+//     storageBucket: "gs://dtaraang-chek.firebasestorage.app",
+// };
+
+// grab env variables from .env.local
+dotenv.config()
+
+const firebaseConfig = {
+  apiKey: process.env.GOOGLE_API_KEY,
+  authDomain: "dtaraang-chek.firebaseapp.com",
+  projectId: "dtaraang-chek",
+  storageBucket: "dtaraang-chek.firebasestorage.app",
+  messagingSenderId: "1086978762239",
+  appId: "1:1086978762239:web:ba7d2df8799b2f8d9b33ca",
+  measurementId: "G-RLJP095WXD"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 async function callApify(){
 
@@ -295,18 +322,21 @@ const sampleData = [
   }
 ];
 
-async function parseData(jsonArray){
+async function parseData(jsonArray: Object[]){
+    const storage = getStorage(app);
+
     // get the schedules
     const scheduleArray = jsonArray.filter(j => j.caption.includes("ตาราง"))
-    for (const json of scheduleArray){
-        console.log(json)
+    for (const postJson of scheduleArray){
+        console.log(postJson)
     
         // grab the images. needs to check `images` array first and then `displayUrl`
-
+        
 
         //check if an `image` exists w/ that Instagram link. Probably needs to be the photo link. Take off anything after ? when saving into the db.
         const imagesCollection = "images" // TODO: put in constant file
-        const q = query(collection(db, imagesCollection), where("instagram_post_url", "==", targetUrl));
+        const instagramPostUrl = postJson.url
+        const q = query(collection(db, imagesCollection), where("instagram_post_url", "==", instagramPostUrl));
 
         const querySnapshot = await getDocs(q);
 
@@ -317,9 +347,76 @@ async function parseData(jsonArray){
             * start process to save the info
             */  
 
-            //parse the image using Gemini
+            // select the images, as an array
+            const images = postJson.images.length == 0 ? [postJson.displayUrl] : postJson.images
             
 
+            for (let i = 0; i < images.length; i++){
+                // download the images to temp storage
+                //const fileRef = ref(storage, "pixxie/pixxie_march_2025_schedule-1.webp");
+                //console.log(fileRef)
+
+                const currentImageUrl = images[i]
+                
+                // fetch file from the url
+                console.log(currentImageUrl);
+                const response = await fetch(currentImageUrl);
+                if (!response.ok) {
+                    console.log(`Failed to fetch file: ${response.statusText}`);
+                    break // end fetching for this post
+                }
+
+                const fileArrayBuffer = await response.arrayBuffer();
+                const fileBuffer = Buffer.from(fileArrayBuffer)
+
+                const imageParts = [fileBufferToGenerativePart(fileBuffer)]
+                //console.log(imageParts)
+
+                //parse the image using Gemini
+                const eventJsonArray = await parseImageForEvents(imageParts)
+
+                if (eventJsonArray.length > 0){
+                    // save the image to Storage
+                    const folderName = postJson.ownerUsername
+                    const fileName = currentImageUrl.substring(0, currentImageUrl.indexOf(".jpg"));
+                    const storagePath = `artists/${folderName}/${fileName}}`
+                    const storageRef = ref(storage, storagePath)
+                    
+                    await uploadBytes(storageRef, fileBuffer)
+
+                    // get download url
+                    const fileURL = await getDownloadURL(storageRef)
+
+                    // for each event, save the event info into Firestore
+                    for (const eventJson of eventJsonArray){
+                        saveEvent(db, eventJson, postJson, fileURL)
+                    }
+
+                    // // save the image to Storage
+                    // const fileName = `pixxie/${postJson.ownerUsername}/${postJson.shortCode}-${i}.webp`;
+                    // const fileRef = ref(storage, fileName);
+                    
+                    // // upload the file
+                    // await uploadBytes(fileRef, fileBuffer);
+
+                    // // save the image info into `images` collection
+                    // const imageDoc = {
+                    //     owner_username: postJson.ownerUsername,
+                    //     owner_full_name: postJson.ownerFullName,
+                    //     instagram_post_url: postJson.url,
+                    //     image_url: currentImageUrl,
+                    //     file_name: fileName,
+                    //     events: eventJson,
+                    //     timestamp: new Date().toISOString(),
+                    // };
+
+                    // // add the document to Firestore
+                    // await addDoc(collection(db, imagesCollection), imageDoc);
+                }
+
+                // temp
+                break
+            }
         } else {
             // Already parsed and saved this post. Skip to the next one
             continue
@@ -339,6 +436,280 @@ async function parseData(jsonArray){
     }
 }
 
-parseData(sampleData)
+// TODO: add a dataConverter function to turn the eventJson into a Firestore document
+
+async function saveEvent(db, eventJson, postJson, fileURL=null){
+    const eventsCollection = "events" // TODO: put in constant file
+
+    // create a sub-collection for the artist if not exists. Use the artist's instagram url as the collection name
+    const artistSubCollection = postJson.ownerUsername;
+
+
+    // check if the event already exists in the collection
+    const q = query(collection(db, eventsCollection), where("event_name", "==", eventJson.event_name), where("start_date", "==", eventJson.start_date), where("end_date", "==", eventJson.end_date));
+
+}
+
+function fileBufferToGenerativePart(buffer, mimeType="image/jpeg"){
+    return {
+        inlineData: {
+            data: buffer.toString("base64"),
+            mimeType
+        }
+    }
+}
+
+// returns array of json events
+async function parseImageForEvents(imageParts){
+    const PARSE_IMAGE_PROMPT = `
+        Extract the text from this image, returning an array. 
+        Do not translate the text. 
+        Each value is a json of this format: {artist_name, start_date, end_date, event_name, location, coordinates, time}. 
+        If 'ร้าน' is in the event_name, it is also the location. 
+        Retrieve lat/lon coordinates by geocoding the location in Thai. 
+        Date should be in YYYY-MM-DD format. 
+        Time should be in HH:MM format.
+        `
+
+    const API_KEY = process.env.GOOGLE_API_KEY;
+    //console.log(process.env)
+    //console.log(API_KEY)
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.5-pro"
+    });
+
+    const generationConfig = {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: "array",
+                items: {
+                    type: "object",
+                    properties: {
+                        artist_name: {
+                            type: "string",
+                        },
+                        start_date: {
+                            type: "string",
+                        },
+                        end_date: {
+                            type: "string",
+                        },
+                        event_name: {
+                            type: "string",
+                        },
+                        location: {
+                            type: "string",
+                        },
+                        coordinates: {
+                            type: "object",
+                            properties: {
+                                lat: {
+                                    type: "number"
+                                },
+                                lon: {
+                                    type: "number"
+                                },
+                            },
+                        },
+                        time: {
+                            type: "string",
+                        }
+                    },
+                },
+            },
+        }
+
+    //upload picture based on ownerUsername
+    const result = await model.generateContent([PARSE_IMAGE_PROMPT, ...imageParts], generationConfig);
+    const response = result.response;
+    //console.log(response)
+    console.log(response.text())
+
+    const eventJson = extractJsonFromAIOutput(response.text())
+
+    return eventJson;
+}   
+
+//parseData(sampleData)
+
+const sampleResultText = `json
+[
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-02",
+    "end_date": "2025-08-02",
+    "event_name": "งาน Sabb fest 2025 (เวทีเด็กแด้น) (Festival)",
+    "location": "ลานกิจกรรมเครื่องบิน Market (เมืองนครปฐม)",
+    "coordinates": {
+      "lat": 13.84051,
+      "lon": 100.04364
+    },
+    "time": "17:00"
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-03",
+    "end_date": "2025-08-03",
+    "event_name": "งาน LOVEiS Campus Tour (Concert)",
+    "location": "ลานหน้าอาคารกีฬาศาลายา, มหาวิทยาลัยธรรมศาสตร์ ศูนย์รังสิต",
+    "coordinates": {
+      "lat": 14.072236,
+      "lon": 100.600125
+    },
+    "time": "21:00"
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-04",
+    "end_date": "2025-08-05",
+    "event_name": "ถ่าย *****",
+    "location": null,
+    "coordinates": null,
+    "time": null
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-06",
+    "end_date": "2025-08-06",
+    "event_name": "ร้าน PROMPT จรัญฯ (ร้านกลางคืน)",
+    "location": "ร้าน PROMPT จรัญฯ (ร้านกลางคืน)",
+    "coordinates": {
+      "lat": 13.784518,
+      "lon": 100.485149
+    },
+    "time": "22:30"
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-07",
+    "end_date": "2025-08-07",
+    "event_name": "มาเบล ร่วมงาน Maison Kitsune FW25 Collection Press Preview",
+    "location": "ร้าน Maison Kitsune สาขา Emquartier",
+    "coordinates": {
+      "lat": 13.73142,
+      "lon": 100.56939
+    },
+    "time": "15:00"
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-08",
+    "end_date": "2025-08-13",
+    "event_name": "ถ่าย *****",
+    "location": null,
+    "coordinates": null,
+    "time": null
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-14",
+    "end_date": "2025-08-14",
+    "event_name": "ถ่ายงาน CHAPS",
+    "location": null,
+    "coordinates": null,
+    "time": null
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-15",
+    "end_date": "2025-08-15",
+    "event_name": "ถ่าย *****",
+    "location": null,
+    "coordinates": null,
+    "time": null
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-16",
+    "end_date": "2025-08-16",
+    "event_name": "งาน 2025 Weibo Cultural Exchange Night in Thailand (Awards)",
+    "location": "ศูนย์ประชุมแห่งชาติสิริกิติ์",
+    "coordinates": {
+      "lat": 13.725798,
+      "lon": 100.559235
+    },
+    "time": "18:30"
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-17",
+    "end_date": "2025-08-18",
+    "event_name": "ถ่าย *****",
+    "location": null,
+    "coordinates": null,
+    "time": null
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-19",
+    "end_date": "2025-08-19",
+    "event_name": "ร้าน Ratch Hour รัชโยธิน (ร้านกลางคืน)",
+    "location": "ร้าน Ratch Hour รัชโยธิน (ร้านกลางคืน)",
+    "coordinates": {
+      "lat": 13.83021,
+      "lon": 100.57009
+    },
+    "time": "23:00"
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-20",
+    "end_date": "2025-08-21",
+    "event_name": "ถ่าย *****",
+    "location": null,
+    "coordinates": null,
+    "time": null
+  },
+  {
+    "artist_name": "PIXXIE",
+    "start_date": "2025-08-22",
+    "end_date": "2025-08-22",
+    "event_name": "ร่วมงาน JEEP 50th BIRTHDAY PARTY",
+    "location": "งานปิด เฉพาะผู้ที่ได้รับเชิญ",
+    "coordinates": null,
+    "time": null
+  }
+]
+`
+
+function extractJsonFromAIOutput(aiData: string): Object[]{
+
+    var startIndex = 0
+    var endIndex = 0
+    for(let i=0; i<aiData.length; i++){
+        if (aiData[i] == "["){
+            startIndex = i
+            break
+        }
+    }
+    for(let i=aiData.length-1; i>=0; i--){
+        if (aiData[i] == "]"){
+            endIndex = i
+            break
+        }
+    }
+    // no data
+    if(startIndex == endIndex){
+        return [];
+    }
+
+    const jsonText = aiData.substring(startIndex, endIndex + 1);
+    //const jsonText = aiData.trim();
+
+    try {
+        const jsonData = JSON.parse(jsonText);
+        return jsonData;
+    } catch (error) {
+        console.error("Error parsing json:", error);
+        return [];
+    }
+}
+
+//const data = extractJsonFromAIOutput(sampleResultText)
+//console.log(data);
+
+
+
 
 //node functions/src/test_apify_api.js
