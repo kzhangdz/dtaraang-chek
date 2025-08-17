@@ -20,15 +20,7 @@ import { GoogleGenerativeAI} from "@google/generative-ai";
 // grab env variables from .env.local
 dotenv.config()
 
-const firebaseConfig = {
-  apiKey: process.env.GOOGLE_API_KEY,
-  authDomain: "dtaraang-chek.firebaseapp.com",
-  projectId: "dtaraang-chek",
-  storageBucket: "dtaraang-chek.firebasestorage.app",
-  messagingSenderId: "1086978762239",
-  appId: "1:1086978762239:web:ba7d2df8799b2f8d9b33ca",
-  measurementId: "G-RLJP095WXD"
-};
+// remove firebase config
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -36,7 +28,7 @@ const db = getFirestore(app);
 async function callApify(){
 
   // TODO: move token to env file
-  const apifyClient = new ApifyClient({ token: 'apify_api_vts7vmb0hce5gitGD9c7CcrX1E9EPl2OqTkc' });
+  const apifyClient = new ApifyClient({ token: process.env.APIFY_API_KEY || "" });
 
   // Define the input for the Actor
   const actorInput = {
