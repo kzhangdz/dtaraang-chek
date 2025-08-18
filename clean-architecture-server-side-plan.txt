@@ -14,12 +14,29 @@ app/
 			- description?
 			- name_thai
 		- Event: auto-generated id
-			- 
+			- artistName!
+			- event_name!
+			- start_date!
+			- end_date!
+			- time! (string)
+			- location_name!
+			- coordinates {lat, long} | null
 			
+			- foreign keys
+				- image_id (maybe needs to be an array)
+				- image display urls
+				
+		- Posts:
+		
+		- Images:
+	use-cases/      # Core business logic goes here
+		- Event
+			- 
+			- 
     config/         # App's constants/enums/other configuration
     interfaces/     # Interfaces for different parts of an app
     controllers/    # These are called by your implementation (infrastructure) layer.
-    use-cases/      # Core business logic goes here
+
     infrastructure/ # This folder will contain actual implementations
   temp/   # Misc. and temp files would go here, delete if not needed
   .env    # An app's environment and sensitive information

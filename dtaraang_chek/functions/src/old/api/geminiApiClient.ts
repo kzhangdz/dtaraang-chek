@@ -1,5 +1,5 @@
 import { GenerativeModel, GoogleGenerativeAI, GenerateContentResult } from "@google/generative-ai";
-import { IEvent, Event } from "../models/eventModel";
+import { IEvent, Event } from "../../models/eventModel";
 
 // Conceptual example
 export class GeminiApiClient {

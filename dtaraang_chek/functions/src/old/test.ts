@@ -1,8 +1,8 @@
 require("./config")
 import {db, bucket} from "./config";
 import { sampleData, PostApify } from "./models/postModel"
-import { EventsGeminiApiClient } from "./api/geminiApiClient";
-import { FirestoreApiClient } from "./api/firestoreApiClient";
+import { EventsGeminiApiClient } from "./old/api/geminiApiClient";
+import { FirestoreApiClient } from "./old/api/firestoreApiClient";
 import { Image } from "./models/imageModel";
 import fetch from "node-fetch";
 import { EventConverter, sampleEvents } from "./models/eventModel";

@@ -9,8 +9,8 @@ import {
   //DocumentReference,
 } from '@firebase/firestore-types';
 
-import { db } from '../config';
-import { Event, EventConverter } from '../models/eventModel';
+import { db } from '../../config';
+import { Event, EventConverter } from '../../models/eventModel';
 
 /**
  * A general-purpose API client for Firestore collections using the Firebase Admin SDK.

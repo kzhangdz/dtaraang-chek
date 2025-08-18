@@ -1,5 +1,5 @@
 import { ApifyClient } from "apify-client";
-import { IPost, PostApify } from "../models/postModel"; // Assuming Post is defined in models/Post
+import { IPost, PostApify } from "../../models/postModel"; // Assuming Post is defined in models/Post
 require('./../config')
 
 interface IActorInput {
