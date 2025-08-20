@@ -12,6 +12,9 @@ import { getDownloadURL } from "firebase-admin/storage";
 
 // function to call Apify API
 
+// TODO: wrap each database call in try-catch blocks
+// Put all calls inside a transaction as well
+
 // function to parse events from posts using Gemini
 async function parseEvents(posts: PostApify[]){
 

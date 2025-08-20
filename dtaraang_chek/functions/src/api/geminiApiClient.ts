@@ -1,27 +1,51 @@
-import { GenerativeModel, GoogleGenerativeAI, GenerateContentResult } from "@google/generative-ai";
-import { IEvent, Event } from "../models/eventModel";
+//import { GenerativeModel, GoogleGenerativeAI, GenerateContentResult } from "@google/generative-ai";
+import { GenerateContentResponse, GoogleGenAI, Models } from "@google/genai"
+import { Event } from "../models/eventModel";
 
-// Conceptual example
 export class GeminiApiClient {
   private apiKey: string;
-  private client: GoogleGenerativeAI
-  private model: GenerativeModel
+  //private client: GoogleGenerativeAI
+  //private model: GenerativeModel
+  private client: GoogleGenAI
+  private model: Models
 
   constructor(apiKey: string) {
+    
     this.apiKey = apiKey;
-    this.client = new GoogleGenerativeAI(this.apiKey);
-    this.model = this.client.getGenerativeModel({ 
-        model: "gemini-2.5-pro"
-    });
+    // this.client = new GoogleGenerativeAI(this.apiKey);
+    // this.model = this.client.getGenerativeModel({ 
+    //     model: "gemini-2.5-pro"
+    // });
+
+    this.client = new GoogleGenAI({"apiKey": this.apiKey})
+    this.model = this.client.models
 }
 
-  public async generateContent(inputData: any, prompt: string, generationConfig: object): Promise<GenerateContentResult> {
-    const payload = [prompt, ...inputData]
+  public async generateContent(inputData: any, prompt: string, generationConfig: object): Promise<GenerateContentResponse> {
+    //const payload = [prompt, ...inputData]
+    const contents = [
+            ...inputData,
+            { text: prompt },
+        ]
+
+    const payload = {
+        model: "gemini-2.5-pro",
+        contents: contents,
+        config: generationConfig,   
+    }
+
+    console.log("Payload")
+    console.log(payload)
     
-    const result = await this.model.generateContent(payload, generationConfig);
+    //const result = await this.model.generateContent(payload, generationConfig);
+    const result = await this.model.generateContent(payload);
     return result;
   }
 }
+
+
+
+// TODO: save Gemini output to text logs
 
 export class EventsGeminiApiClient extends GeminiApiClient {
   private prompt: string;
@@ -34,7 +58,7 @@ export class EventsGeminiApiClient extends GeminiApiClient {
         Extract the text from this Thai performer's schedule image, returning an array. 
         Do not translate the text. 
         Return a json array.
-        Each value is a json of this format: {artistName, startDate, endDate, eventName, location, coordinates, time}. 
+        Each value is a json of this format: {artistName, startDate, endDate, eventName, location, coordinates {lat, lon}, time}. 
         If 'ร้าน' is in the event_name, it is also the location. 
         Retrieve lat/lon coordinates by geocoding the location in Thai. 
         Date should be in YYYY-MM-DD format. 
@@ -97,20 +121,28 @@ export class EventsGeminiApiClient extends GeminiApiClient {
     console.log(fullPrompt)
     
     const result = await this.generateContent(imageParts, fullPrompt, genConfig);
-    const response = result.response
-    if (!response) {
+    if (!result) {
       throw new Error("No response from Gemini API");
     }
+    if (result.candidates && result.candidates.length > 0) {
+      // Access the first candidate if available
+      const candidate = result.candidates[0];
+      console.log(candidate.content)
+    }
+    console.log(result.data)
+    console.log("Gemini API response:", result.text);
 
-    console.log("Gemini API response:", response.text());
+    process.exit()
 
-    const eventJson = this.extractJsonFromAIOutput(response.text());
+    return []
 
-    const events = eventJson.map((eventData: object) => {
-            return new Event(eventData as IEvent)
-    })
+    // const eventJson = this.extractJsonFromAIOutput(result.text);
 
-    return events;
+    // const events = eventJson.map((eventData: object) => {
+    //         return new Event(eventData as IEvent)
+    // })
+
+    // return events;
   }
 
   /**
