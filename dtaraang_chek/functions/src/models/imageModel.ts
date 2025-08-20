@@ -1,4 +1,4 @@
-import { FirestoreDataConverter, DocumentData, QueryDocumentSnapshot } from "firebase-admin/firestore";
+import { FirestoreDataConverter, DocumentData, QueryDocumentSnapshot, Timestamp } from "firebase-admin/firestore";
 
 export interface IImage{
     artistName: string; // name of the artist
@@ -53,6 +53,7 @@ interface ImageDbModel {
     instagramSourceURL: string; 
     instagramDescription?: string; 
     docID?: string;
+    updatedAt?: Timestamp; // ISO date string for the last update
 }
 
 export class ImageConverter implements FirestoreDataConverter<Image, ImageDbModel>{
@@ -63,7 +64,8 @@ export class ImageConverter implements FirestoreDataConverter<Image, ImageDbMode
             instagramPostURL: image.instagramPostURL,
             instagramPageNumber: image.instagramPageNumber,
             instagramSourceURL: image.instagramSourceURL,
-            instagramDescription: image.instagramDescription ?? ""
+            instagramDescription: image.instagramDescription ?? "",
+            updatedAt: Timestamp.now(),
         };
     }
 

@@ -31,8 +31,9 @@ export class EventsGeminiApiClient extends GeminiApiClient {
     super(apiKey);
 
     this.prompt = `
-        Extract the text from this image, returning an array. 
+        Extract the text from this Thai performer's schedule image, returning an array. 
         Do not translate the text. 
+        Return a json array.
         Each value is a json of this format: {artistName, startDate, endDate, eventName, location, coordinates, time}. 
         If 'ร้าน' is in the event_name, it is also the location. 
         Retrieve lat/lon coordinates by geocoding the location in Thai. 
@@ -91,12 +92,17 @@ export class EventsGeminiApiClient extends GeminiApiClient {
    * @param {object} genConfig 
    * @returns {Event[]} - Array of Event objects parsed from the image parts
    */
-  public async parseImageForEvents(imageParts: object[], parsePrompt: string = this.prompt, genConfig: object = this.generationConfig): Promise<Event[]> {
-    const result = await this.generateContent(imageParts, parsePrompt, genConfig);
+  public async parseImageForEvents(imageParts: object[], adtlPrompt: string = "", parsePrompt: string = this.prompt, genConfig: object = this.generationConfig): Promise<Event[]> {
+    const fullPrompt = `${parsePrompt} ${adtlPrompt}`.trim();
+    console.log(fullPrompt)
+    
+    const result = await this.generateContent(imageParts, fullPrompt, genConfig);
     const response = result.response
     if (!response) {
       throw new Error("No response from Gemini API");
     }
+
+    console.log("Gemini API response:", response.text());
 
     const eventJson = this.extractJsonFromAIOutput(response.text());
 

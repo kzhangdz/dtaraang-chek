@@ -132,6 +132,22 @@ export class FirestoreApiClient<T extends DocumentData> {
       throw error;
     }
   }
+
+  public async queryDocs(
+    field: string,
+    operator: FirebaseFirestore.WhereFilterOp,
+    value: any
+  ): Promise<T[]> {
+    try {
+      const querySnapshot = await this.collectionRef
+        .where(field, operator, value)
+        .get();
+      return querySnapshot.docs.map(doc => doc.data() as T);
+    } catch (error) {
+      console.error('Error querying documents:', error);
+      throw error;
+    }
+  }
 }
 
 

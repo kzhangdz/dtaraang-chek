@@ -14,6 +14,7 @@ export const sampleData = [
       'https://scontent-atl3-1.cdninstagram.com/v/t51.2885-15/533561857_18072410657472960_2375009909403765818_n.jpg?stp=dst-jpg_e35_p1080x1080_sh0.08_tt6&_nc_ht=scontent-atl3-1.cdninstagram.com&_nc_cat=100&_nc_oc=Q6cZ2QE1VBiFZ4yUSt0v4A0Atj6ZroLF2zd3bH4ieVDuQ6ktNmrvi02tgQnA2wIkywBY74A&_nc_ohc=Rm-Ad_QTXf8Q7kNvwEqVvI4&_nc_gid=Nf1r3YrBT1RJrbNzEJwg8A&edm=APs17CUBAAAA&ccb=7-5&oh=00_AfUDJuCisBLykru38GuoCqX3JISxd-g79rsvevMfebYM-A&oe=68A6A890&_nc_sid=10d13b',
       'https://scontent-atl3-1.cdninstagram.com/v/t51.2885-15/533056646_18072410666472960_7779140075830653018_n.jpg?stp=dst-jpg_e35_p1080x1080_sh0.08_tt6&_nc_ht=scontent-atl3-1.cdninstagram.com&_nc_cat=100&_nc_oc=Q6cZ2QE1VBiFZ4yUSt0v4A0Atj6ZroLF2zd3bH4ieVDuQ6ktNmrvi02tgQnA2wIkywBY74A&_nc_ohc=FUdz4WLPmEkQ7kNvwFzftsp&_nc_gid=Nf1r3YrBT1RJrbNzEJwg8A&edm=APs17CUBAAAA&ccb=7-5&oh=00_AfW9C03IQhJdcZdYvRrBOn5l0ThRY3KXTiZJHlkKrGyWtQ&oe=68A68DC5&_nc_sid=10d13b'
     ],
+    timestamp: '2025-08-01T00:00:00Z',
     ownerFullName: 'PiXXiE',
     ownerUsername: 'pixxie_official'
   },
@@ -32,6 +33,7 @@ export const sampleData = [
       'https://scontent-dfw5-2.cdninstagram.com/v/t51.2885-15/532317436_18072411011472960_5560614809739907996_n.jpg?stp=dst-jpg_e35_p1080x1080_sh0.08_tt6&_nc_ht=scontent-dfw5-2.cdninstagram.com&_nc_cat=100&_nc_oc=Q6cZ2QEcQhggT4RYfYdy_84RpZwBlHjd4Su5_0lzSR3uh0MYHjxIF1qlfxLi4c_3GEmGPdc&_nc_ohc=lAgLTTdmHvIQ7kNvwEkSg7d&_nc_gid=LUqEqSYiD4840rqc4D0ihA&edm=APs17CUBAAAA&ccb=7-5&oh=00_AfU1cA4RZNVcE685VJAta3_zbAMXGsdSwy3PouryIkxsPA&oe=68A6ACBB&_nc_sid=10d13b',
       'https://scontent-dfw5-2.cdninstagram.com/v/t51.2885-15/532465067_18072411023472960_5480651773840263511_n.jpg?stp=dst-jpg_e35_p1080x1080_sh0.08_tt6&_nc_ht=scontent-dfw5-2.cdninstagram.com&_nc_cat=100&_nc_oc=Q6cZ2QEcQhggT4RYfYdy_84RpZwBlHjd4Su5_0lzSR3uh0MYHjxIF1qlfxLi4c_3GEmGPdc&_nc_ohc=JwvK3inVo5YQ7kNvwGEasDM&_nc_gid=LUqEqSYiD4840rqc4D0ihA&edm=APs17CUBAAAA&ccb=7-5&oh=00_AfU_E-ry4SJx1rrFRfbXC5SsV8c-hf2pUMZS3knpt-6Bmg&oe=68A6B1AE&_nc_sid=10d13b'
     ],
+    timestamp: '2025-08-01T00:00:00Z',
     ownerFullName: 'PiXXiE',
     ownerUsername: 'pixxie_official'
   },
@@ -50,6 +52,7 @@ export const sampleData = [
       'https://scontent-ord5-2.cdninstagram.com/v/t39.30808-6/525142745_1325369036261789_4011688181863516371_n.jpg?stp=dst-jpg_e35_s1080x1080_sh0.08_tt6&_nc_ht=scontent-ord5-2.cdninstagram.com&_nc_cat=105&_nc_oc=Q6cZ2QHpQlT8pkCvNrdLeoJG_aqPK9WksjgbAFieTGWoeSBkNG89SMbIvkzOPPlx2VZlHgY&_nc_ohc=eYgTFnirgrsQ7kNvwE9hbrR&_nc_gid=EZcYi3lYi-qIK0ozGPiraQ&edm=APs17CUAAAAA&ccb=7-5&oh=00_AfVzlgplYmqBrGnFEHr__XESTnBj5e7cylBEO5-EYz0qgw&oe=68A6AB36&_nc_sid=10d13b',
       'https://scontent-ord5-1.cdninstagram.com/v/t39.30808-6/524487268_1325369032928456_7414244652758186393_n.jpg?stp=dst-jpg_e35_s1080x1080_sh0.08_tt6&_nc_ht=scontent-ord5-1.cdninstagram.com&_nc_cat=108&_nc_oc=Q6cZ2QHpQlT8pkCvNrdLeoJG_aqPK9WksjgbAFieTGWoeSBkNG89SMbIvkzOPPlx2VZlHgY&_nc_ohc=8zij83J_4toQ7kNvwE5BPCF&_nc_gid=EZcYi3lYi-qIK0ozGPiraQ&edm=APs17CUAAAAA&ccb=7-5&oh=00_AfWstejroNJmAnI0H3ceAxT3AZ7r1CjOj9rOCg_j0Mz11A&oe=68A6A7B6&_nc_sid=10d13b'
     ],
+    timestamp: '2025-08-01T00:00:00Z',
     ownerFullName: 'PiXXiE',
     ownerUsername: 'pixxie_official'
   },
@@ -68,6 +71,7 @@ export const sampleData = [
     url: 'https://www.instagram.com/p/DI0KwntyODz/',
     displayUrl: 'https://scontent-msp1-1.cdninstagram.com/v/t51.2885-15/491515129_18060783005472960_6619233385277075068_n.jpg?stp=dst-jpg_e15_tt6&_nc_ht=scontent-msp1-1.cdninstagram.com&_nc_cat=100&_nc_oc=Q6cZ2QHA_Git94MnYREPq1l0LgCxiF6GXRZMnFUyXXYQwU-NKiP5tIiDDIxaBEzCi6Dbar0&_nc_ohc=OhCzK_sCMp0Q7kNvwGoz6KE&_nc_gid=zUKD5Pi54zY4oe2P8LjBnQ&edm=APs17CUBAAAA&ccb=7-5&oh=00_AfWAUVmiXRnaNbp6hmERuksepFeofbNPf1N8IKJm_sZGrw&oe=68A69538&_nc_sid=10d13b',
     images: [],
+    timestamp: '2025-08-01T00:00:00Z',
     ownerFullName: 'PiXXiE',
     ownerUsername: 'pixxie_official'
   },
@@ -86,6 +90,7 @@ export const sampleData = [
       'https://scontent-dfw5-2.cdninstagram.com/v/t51.2885-15/532448189_18072410450472960_3651810076481214410_n.jpg?stp=dst-jpg_e35_p1080x1080_sh0.08_tt6&_nc_ht=scontent-dfw5-2.cdninstagram.com&_nc_cat=100&_nc_oc=Q6cZ2QEqySY0xflYJeyKdNPo2JRSUpQnf9VSqYjleoZUrKomSWE6YPai0wtHZZkuSI1ogF0&_nc_ohc=9L2NjAu9EcQQ7kNvwHFauRS&_nc_gid=Urh3o-9HvhmH5qhp8puAmw&edm=APs17CUBAAAA&ccb=7-5&oh=00_AfU2ZWxWqppmDlS2iolIkzvo3eig0Exzjzm9MFNJcdSzcg&oe=68A68B75&_nc_sid=10d13b',
       'https://scontent-dfw5-2.cdninstagram.com/v/t51.2885-15/533119195_18072410459472960_2233260786177364695_n.jpg?stp=dst-jpg_e35_p1080x1080_sh0.08_tt6&_nc_ht=scontent-dfw5-2.cdninstagram.com&_nc_cat=100&_nc_oc=Q6cZ2QEqySY0xflYJeyKdNPo2JRSUpQnf9VSqYjleoZUrKomSWE6YPai0wtHZZkuSI1ogF0&_nc_ohc=9fbYbm3k6N8Q7kNvwFUq90m&_nc_gid=Urh3o-9HvhmH5qhp8puAmw&edm=APs17CUBAAAA&ccb=7-5&oh=00_AfXWW2cA05Zq871L88p3d3z3fqggFstwLjdw8y6SCNNncA&oe=68A688E7&_nc_sid=10d13b'
     ],
+    timestamp: '2025-08-01T00:00:00Z',
     ownerFullName: 'PiXXiE',
     ownerUsername: 'pixxie_official'
   }
@@ -109,7 +114,7 @@ export interface IPost {
   images: string[];
 //   alt: string;
 //   likesCount: number;
-//   timestamp: string;
+  timestamp: string;
 //   childPosts: Post[];
   ownerFullName: string;
   ownerUsername: string;
@@ -126,6 +131,7 @@ export class PostApify implements IPost {
     url: string;
     displayUrl: string;
     images: string[];
+    timestamp: string;
     ownerFullName: string;
     ownerUsername: string;
 
@@ -136,6 +142,7 @@ export class PostApify implements IPost {
         this.url = data.url;
         this.displayUrl = data.displayUrl;
         this.images = data.images;
+        this.timestamp = data.timestamp;
         this.ownerFullName = data.ownerFullName;
         this.ownerUsername = data.ownerUsername;
     }
@@ -152,6 +159,10 @@ export class PostApify implements IPost {
     // Method to check if the post is a schedule
     isSchedule(): boolean {
         return this.caption.includes('ตาราง') || this.caption.includes('Schedule') || this.caption.includes('schedule');
+    }
+
+    getDate(){
+        return new Date(this.timestamp);
     }
 }
 

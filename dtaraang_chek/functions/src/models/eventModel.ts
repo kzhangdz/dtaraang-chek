@@ -1,4 +1,4 @@
-import { FirestoreDataConverter, QueryDocumentSnapshot, GeoPoint } from 'firebase-admin/firestore';
+import { FirestoreDataConverter, QueryDocumentSnapshot, GeoPoint, Timestamp } from 'firebase-admin/firestore';
 
 const sampleEventJson = [
   {
@@ -187,7 +187,7 @@ export class Event implements IEvent {
 
 //https://firebase.google.com/docs/reference/js/firestore_.firestoredataconverter
 
-interface EventDbModel {
+export interface EventDbModel {
     artistName: string; 
     eventName: string; 
     startDate: string; 
@@ -199,6 +199,7 @@ interface EventDbModel {
     imageDocIDs?: string[]; 
     imageDisplayURLs?: string[];
     docID?: string; 
+    updatedAt?: Timestamp; // ISO date string for the last update
 }
 
 export class EventConverter implements FirestoreDataConverter<Event, EventDbModel> {
@@ -214,6 +215,7 @@ export class EventConverter implements FirestoreDataConverter<Event, EventDbMode
             ownerUsername: event.ownerUsername,
             imageDocIDs: event.imageDocIDs || [],
             imageDisplayURLs: event.imageDisplayURLs || [],
+            updatedAt: Timestamp.now()
             //docID: event.docID
         };
     }
