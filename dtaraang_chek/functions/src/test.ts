@@ -1,7 +1,7 @@
 require("./config")
 import {db, bucket} from "./config";
 import { Event } from "./models/eventModel";
-import { sampleData, PostApify } from "./models/postModel"
+import { sampleData, IPost, PostApify } from "./models/postModel"
 import { EventsGeminiApiClient } from "./api/geminiApiClient";
 import { FirestoreApiClient } from "./api/firestoreApiClient";
 import { Image } from "./models/imageModel";
@@ -9,11 +9,71 @@ import fetch from "node-fetch";
 import { EventConverter, sampleEvents } from "./models/eventModel";
 import { ImageConverter } from "./models/imageModel";
 import { getDownloadURL } from "firebase-admin/storage";
+import { ApifyClient } from 'apify-client';
 
 // function to call Apify API
+async function getEvents(isDryRun=true){
+
+    // get list of artists to query for
+    const artistsCollection = db.collection("artists")
+    const firestoreClient = new FirestoreApiClient(artistsCollection)
+    const artists = await firestoreClient.getAllDocs()
+
+    console.log(artists)
+
+    // TODO: might need to implement batching
+
+    const artistUrls = artists.map((artist) => {
+        return artist.instagramSourceURL
+    })
+
+    // Define the input for the Actor
+    const actorInput = {
+            directUrls: artistUrls,
+            resultsType: "posts",
+            resultsLimit: 5,
+            onlyPostsNewerThan: "3 days"
+        };
+
+    console.log(actorInput)
+
+    if (!isDryRun){
+        const apifyClient = new ApifyClient({ token: process.env.APIFY_API_KEY || "" });
+
+        // Run an Actor with an input and wait for it to finish
+        console.log("Running the Actor...");
+        const actorRun = await apifyClient
+            .actor("apify/instagram-scraper")
+            .call(actorInput);
+        console.log("🚀 Actor finished:", actorRun);
+
+        // Load the data from the dataset
+        const { items } = await apifyClient
+            .dataset(actorRun.defaultDatasetId)
+            .listItems();
+
+        const results = items as object[]
+
+        // Integrate the data into your application
+        console.log("Data from the dataset:", items);
+        console.log(`💾 Check your data here: https://console.apify.com/storage/datasets/${actorRun.defaultDatasetId}`);
+
+        const posts = results.map(data => new PostApify(data as IPost));
+        const schedulePosts = posts.filter(post => post.isSchedule());
+        console.log(schedulePosts)
+        return schedulePosts
+    }
+    else{
+        return []
+    }
+
+}
+
+//getEvents(false)
+getEvents()
 
 // function to parse events from posts using Gemini
-async function parseEvents(posts: PostApify[]){
+async function parseEvents(posts: PostApify[]){    
 
     for (const post of posts) {
         
