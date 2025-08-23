@@ -76,95 +76,87 @@ getEvents()
 async function parseEvents(posts: PostApify[]){    
 
     for (const post of posts) {
-        
-        // check if an `image` exists with that Instagram link and page number
-        const imagesCollection = "images" // TODO: put in constant file
 
-        const imagesRef = db.collection(imagesCollection);
-        const query = imagesRef
-            .where("instagramPostURL", "==", post.url)
+        // initiate a transaction. If any of the post information doesn't upload, abandon the process
+        await db.runTransaction(async (t) => {
 
-        const querySnapshot = await query.get();
-        if (querySnapshot.empty) {
-            // start the process to save the info
-            const images = post.getImages()
+            // check if an `image` exists with that Instagram link and page number
+            const imagesCollection = "images" // TODO: put in constant file
 
-            for (let i = 0; i < images.length; i++) {
-                const currentImageUrl = images[i];
-                
-                // fetch file from the url
-                console.log(currentImageUrl);
-                const response = await fetch(currentImageUrl);
-                if (!response.ok) {
-                    console.log(`Failed to fetch file: ${response.statusText}`);
-                    break // end fetching for this post
-                }
+            const imagesRef = db.collection(imagesCollection);
+            const query = imagesRef
+                .where("instagramPostURL", "==", post.url)
 
-                const fileArrayBuffer = await response.arrayBuffer();
-                const fileBuffer = Buffer.from(fileArrayBuffer)
+            const querySnapshot = await query.get();
+            if (querySnapshot.empty) {
+                // start the process to save the info
+                const images = post.getImages()
 
-                // initialize Gemini API client
-                const geminiApiKey = process.env.GOOGLE_API_KEY || "";
-                const geminiApiClient = new EventsGeminiApiClient(geminiApiKey);
-                const imageParts = [geminiApiClient.fileBufferToGenerativePart(fileBuffer, "image/jpeg")];
-                imageParts
-                const adtlPrompt = `The image is from the Instagram post ${post.url} by ${post.ownerUsername}. It was uploaded on ${post.timestamp}`;
-                var events = await geminiApiClient.parseImageForEvents(imageParts, adtlPrompt)
+                for (let i = 0; i < images.length; i++) {
+                    const currentImageUrl = images[i];
+                    
+                    // fetch file from the url
+                    console.log(currentImageUrl);
+                    const response = await fetch(currentImageUrl);
+                    if (!response.ok) {
+                        console.log(`Failed to fetch file: ${response.statusText}`);
+                        break // end fetching for this post
+                    }
 
-                // test
-                //const events = sampleEvents;
-                sampleEvents
+                    const fileArrayBuffer = await response.arrayBuffer();
+                    const fileBuffer = Buffer.from(fileArrayBuffer)
 
-                // TODO: function to normalize the artist name
+                    // initialize Gemini API client
+                    const geminiApiKey = process.env.GOOGLE_API_KEY || "";
+                    const geminiApiClient = new EventsGeminiApiClient(geminiApiKey);
+                    const imageParts = [geminiApiClient.fileBufferToGenerativePart(fileBuffer, "image/jpeg")];
+                    imageParts
+                    const adtlPrompt = `The image is from the Instagram post ${post.url} by ${post.ownerUsername}. It was uploaded on ${post.timestamp}`;
+                    var events = await geminiApiClient.parseImageForEvents(imageParts, adtlPrompt)
 
-                if (events.length > 0) {
-                    events = await normalizeArtistName(events)
+                    // test
+                    //const events = sampleEvents;
+                    sampleEvents
 
-                    // create the image data
-                    const imageData = {
-                        artistName: events[0].artistName, // assuming the first event has the artist name
-                        instagramPostURL: post.url,
-                        instagramPageNumber: i,
-                        instagramSourceURL: post.inputUrl,
-                        instagramDescription: post.caption,
-                        ownerUsername: post.ownerUsername
-                    };
-                    const image = new Image(imageData)
+                    if (events.length > 0) {
+                        //normalize the artist name
+                        events = await normalizeArtistName(events)
 
-                    // save the image to Storage
-                    const newImageDocId = await uploadImage(image, fileBuffer);
+                        // create the image data
+                        const imageData = {
+                            artistName: events[0].artistName, // assuming the first event has the artist name
+                            instagramPostURL: post.url,
+                            instagramPageNumber: i,
+                            instagramSourceURL: post.inputUrl,
+                            instagramDescription: post.caption,
+                            ownerUsername: post.ownerUsername
+                        };
+                        const image = new Image(imageData)
 
-                    // update the events with the ownerUsername, image doc ID, display URL
-                    events.forEach(event => {
-                        event.ownerUsername = post.ownerUsername; // set the owner username from the post
-                        event.imageDocIDs = [newImageDocId];
-                        event.imageDisplayURLs = [image.firebaseDisplayURL ?? ""];
-                    });
+                        // save the image to Storage
+                        const newImageDocId = await uploadImage(image, fileBuffer);
 
-                    // for each event, save the event info into Firestore
-                    for (const event of events) {
-                        // event.ownerUsername = post.ownerUsername; // set the owner username from the post
-                        // event.imageDocIDs = [newImageDocId];
-                        // event.imageDisplayURLs = [image.firebaseDisplayURL];
-                        
-                        // const eventConverter = new EventConverter();
-                        // const eventJson = eventConverter.toFirestore(event);
-                        // const eventsCollectionRef = db.collection('events');
-                        
-                        // const eventsFirestoreClient = new FirestoreApiClient(eventsCollectionRef);
-                        // const newEventDocId = await eventsFirestoreClient.addDoc(eventJson)
-                        // console.log(`Wrote event ${newEventDocId} to Firestore`);
+                        // update the events with the ownerUsername, image doc ID, display URL
+                        events.forEach(event => {
+                            event.ownerUsername = post.ownerUsername; // set the owner username from the post
+                            event.imageDocIDs = [newImageDocId];
+                            event.imageDisplayURLs = [image.firebaseDisplayURL ?? ""];
+                        });
 
-                        uploadEvent(event).catch(console.error);
+                        // for each event, save the event info into Firestore
+                        for (const event of events) {
+
+                            uploadEvent(event).catch(console.error);
+                        }
                     }
                 }
+            } 
+            else {
+                // Already parsed and saved this post. Skip to the next one
+                console.log(`Images from post ${post.url} already parsed and saved.`);
             }
-        } 
-        else {
-            // Already parsed and saved this post. Skip to the next one
-            console.log(`Images from post ${post.url} already parsed and saved.`);
-            continue
-        }
+
+        })
 
     }
 }
@@ -251,18 +243,7 @@ async function uploadEvent(event: Event) {
             console.log(`Event with ID: ${existingEventDocId} updated.`);
         })
 
-        // const existingEventDoc = querySnapshot.docs[0];
-        // const existingEventData = existingEventDoc.data() as EventDbModel;
-        // const updatedEventData: EventDbModel = {
-        //     ...eventJson,
-        //     imageDocIDs: [...(existingEventData.imageDocIDs || []), ...(event.imageDocIDs || [])],
-        //     imageDisplayURLs: [...(existingEventData.imageDisplayURLs || []), ...(event.imageDisplayURLs || [])]
-        // };
     }
-    
-    // const eventsFirestoreClient = new FirestoreApiClient(eventsCollectionRef);
-    // const newEventDocId = await eventsFirestoreClient.addDoc(eventJson)
-    // console.log(`Wrote event ${newEventDocId} to Firestore`);
 }
 
 const posts = sampleData.map(data => new PostApify(data));
