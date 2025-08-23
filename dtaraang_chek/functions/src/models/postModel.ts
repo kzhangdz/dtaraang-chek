@@ -1,3 +1,5 @@
+import { FirestoreDataConverter, QueryDocumentSnapshot, Timestamp } from 'firebase-admin/firestore';
+
 export const sampleData = [
    {
     inputUrl: 'https://www.instagram.com/pixxie_official/',
@@ -281,48 +283,106 @@ export interface IPost {
 //   isSponsored: boolean;
 //   isPinned: boolean;
 //   isCommentsDisabled: boolean;
+
+  docID?: string;
+  updatedAt?: Date;
 }
 
 export class PostApify implements IPost {
-    inputUrl: string;
-    id: string;
-    caption: string;
-    url: string;
-    displayUrl: string;
-    images: string[];
-    timestamp: string;
-    ownerFullName: string;
-    ownerUsername: string;
+  inputUrl: string;
+  id: string;
+  caption: string;
+  url: string;
+  displayUrl: string;
+  images: string[];
+  timestamp: string;
+  ownerFullName: string;
+  ownerUsername: string;
 
-    constructor(data: IPost){
-        this.inputUrl = data.inputUrl;
-        this.id = data.id;   
-        this.caption = data.caption;
-        this.url = data.url;
-        this.displayUrl = data.displayUrl;
-        this.images = data.images;
-        this.timestamp = data.timestamp;
-        this.ownerFullName = data.ownerFullName;
-        this.ownerUsername = data.ownerUsername;
-    }
+  docID?: string;
+  updatedAt?: Date;
 
-    toString(): string {
-        return `Post: ${this.id}, Owner: ${this.ownerFullName}, URL: ${this.url}`;
-    }
+  constructor(data: IPost){
+      this.inputUrl = data.inputUrl;
+      this.id = data.id;   
+      this.caption = data.caption;
+      this.url = data.url;
+      this.displayUrl = data.displayUrl;
+      this.images = data.images;
+      this.timestamp = data.timestamp;
+      this.ownerFullName = data.ownerFullName;
+      this.ownerUsername = data.ownerUsername;
 
-    // Method to get images, returns displayUrl if images array is empty
-    getImages(): string[] {
-        return this.images.length == 0 ? [this.displayUrl] : this.images
-    }
+      this.docID = data.docID;
+      this.createdAt = data.createdAt;
+      this.updatedAt = data.updatedAt;
+  }
 
-    // Method to check if the post is a schedule
-    isSchedule(): boolean {
-        return this.caption.includes('ตาราง') || this.caption.toLowerCase().includes('schedule');
-    }
+  toString(): string {
+      return `Post: ${this.id}, Owner: ${this.ownerFullName}, URL: ${this.url}`;
+  }
 
-    getDate(){
-        return new Date(this.timestamp);
-    }
+  // Method to get images, returns displayUrl if images array is empty
+  getImages(): string[] {
+      return this.images.length == 0 ? [this.displayUrl] : this.images
+  }
+
+  // Method to check if the post is a schedule
+  isSchedule(): boolean {
+      return this.caption.includes('ตาราง') || this.caption.toLowerCase().includes('schedule');
+  }
+
+  getDate(){
+      return new Date(this.timestamp);
+  }
+}
+
+export interface PostDbModel {
+  inputUrl: string;
+  id: string;
+  caption: string;
+  url: string;
+  displayUrl: string;
+  images: string[];
+  timestamp: Timestamp;
+  ownerFullName: string;
+  ownerUsername: string;
+  docID?: string;
+  updatedAt?: Timestamp;
+}
+
+export class PostConverter implements FirestoreDataConverter<IPost, PostDbModel> {
+  toFirestore(modelObject: IPost): FirebaseFirestore.WithFieldValue<PostDbModel> {
+    return {
+      inputUrl: modelObject.inputUrl,
+      id: modelObject.id,
+      caption: modelObject.caption,
+      url: modelObject.url,
+      displayUrl: modelObject.displayUrl,
+      images: modelObject.images, 
+      timestamp: Timestamp.fromDate(new Date(modelObject.timestamp)),
+      ownerFullName: modelObject.ownerFullName,
+      ownerUsername: modelObject.ownerUsername,
+      updatedAt: Timestamp.now(),
+    };
+  }
+
+  fromFirestore(snapshot: QueryDocumentSnapshot<PostDbModel>): PostApify {
+    const data = snapshot.data();
+    return new PostApify({
+      inputUrl: data.inputUrl,
+      id: data.id,
+      caption: data.caption,
+      url: data.url,
+      displayUrl: data.displayUrl,
+      images: data.images,
+      timestamp: data.timestamp.toDate().toISOString(),
+      ownerFullName: data.ownerFullName,
+      ownerUsername: data.ownerUsername,
+      docID: snapshot.id,
+      updatedAt: data.updatedAt?.toDate()
+    });
+  }
 }
 
 if (require.main === module) {
