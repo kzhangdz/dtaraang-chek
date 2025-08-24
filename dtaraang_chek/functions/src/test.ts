@@ -1,7 +1,7 @@
 require("./config")
 import {db, bucket} from "./config";
 import { Event } from "./models/eventModel";
-import { sampleData, PostApify } from "./models/postModel"
+import { sampleData, PostApify, PostConverter } from "./models/postModel"
 import { EventsGeminiApiClient } from "./api/geminiApiClient";
 import { FirestoreApiClient } from "./api/firestoreApiClient";
 import { Image } from "./models/imageModel";
@@ -23,7 +23,7 @@ async function getEvents(isDryRun=true){
 
     const artistUrls = artists.map((artist) => {
         return artist.instagramSourceURL
-    })
+    }).filter((url) => url != null && url.trim() != "")
 
     const apiKey = process.env.APIFY_API_KEY || ""
     const apifyClient = new ApifyApiClient(apiKey);
@@ -39,7 +39,12 @@ async function getEvents(isDryRun=true){
 
         // const schedulePosts = apifyClient.fetchSchedulePosts(actorInput)
         // return schedulePosts
-        const schedulePosts = await apifyClient.batchFetchSchedulePosts(actorInputs)
+        const schedulePosts = await apifyClient.batchFetchSchedulePosts(actorInputs) as PostApify[]
+
+        for (const post of schedulePosts){
+            await uploadPost(post)
+        }
+
         return schedulePosts
     }
     else{
@@ -48,8 +53,34 @@ async function getEvents(isDryRun=true){
 
 }
 
+async function uploadPost(post: PostApify) {
+
+    // check if a post with the same url exists
+    const postConverter = new PostConverter();
+    const postJson = postConverter.toFirestore(post);
+    const postsCollectionRef = db.collection('posts');
+
+    const query = postsCollectionRef
+        .where("url", "==", post.url);
+
+    const querySnapshot = await query.get();
+    if (querySnapshot.empty) {
+        // add the post
+        postsCollectionRef.doc(post.id).set(postJson).then((docRef) => {
+            console.log(`Post added with ID: ${post.id} at ${docRef.writeTime.toDate()}`);
+        })
+    } else {
+        // update the existing post
+        const existingDocId = querySnapshot.docs[0].id;
+        postsCollectionRef.doc(existingDocId).update(postJson as object).then(() => {
+            console.log(`Post with ID: ${existingDocId} updated.`);
+        })
+
+    }
+}
+
 //getEvents(false)
-getEvents()
+// getEvents()
 
 // function to parse events from posts using Gemini
 async function parseEvents(posts: PostApify[]){    
@@ -225,6 +256,13 @@ async function uploadEvent(event: Event) {
     }
 }
 
-const posts = sampleData.map(data => new PostApify(data));
-const schedulePosts = posts.filter(post => post.isSchedule());
-parseEvents(schedulePosts);
+// getEvents();
+
+// const posts = sampleData.map(data => new PostApify(data));
+// const schedulePosts = posts.filter(post => post.isSchedule());
+// parseEvents(schedulePosts);
+
+sampleData
+getEvents(false).then((posts) => {
+    parseEvents(posts)
+})

@@ -230,7 +230,7 @@ export class EventConverter implements FirestoreDataConverter<Event, EventDbMode
             endDate: data.endDate,
             time: data.time,
             location: data.location,
-            coordinates: data.coordinates
+            coordinates: data.coordinates != null
                 ? { lat: data.coordinates.latitude, lon: data.coordinates.longitude }
                 : null,
             ownerUsername: data.ownerUsername,
@@ -241,10 +241,12 @@ export class EventConverter implements FirestoreDataConverter<Event, EventDbMode
     }
 
     _geopointFromCoordinates(coordinates: { lat: number, lon: number } | null): GeoPoint | null {
-        if (coordinates){
+        if (coordinates == null || coordinates?.lat == null || coordinates?.lon == null){
+          return null
+        }
+        else {
            return new GeoPoint(coordinates.lat, coordinates.lon);
         }
-        return null
     }
 }
 

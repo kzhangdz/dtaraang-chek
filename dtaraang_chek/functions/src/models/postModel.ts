@@ -314,7 +314,6 @@ export class PostApify implements IPost {
       this.ownerUsername = data.ownerUsername;
 
       this.docID = data.docID;
-      this.createdAt = data.createdAt;
       this.updatedAt = data.updatedAt;
   }
 

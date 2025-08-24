@@ -40,7 +40,7 @@ export class ApifyApiClient extends ApifyClient {
                 return new PostApify(item as IPost);
             })
 
-            const schedulePosts = posts.filter(post => post.isSchedule);
+            const schedulePosts = posts.filter(post => post.isSchedule());
 
             console.log("Schedule Posts: " + schedulePosts)
 
