@@ -145,7 +145,7 @@ export interface IEvent{
     endDate: string; // end date of the event
     time: string; // time of the event
     location: string; // location of the event
-    coordinates: { lat: number, lon: number } | null; // coordinates of the event
+    coordinates: any | null; // coordinates of the event. format {lat: number, lon: number}
     ownerUsername: string; 
     imageDocIDs?: string[]; // array of image document IDs associated with the event
     imageDisplayURLs?: string[]; // array of image display URLs associated with the event
@@ -161,7 +161,7 @@ export class Event implements IEvent {
     endDate: string; // end date of the event
     time: string; // time of the event
     location: string; // location of the event
-    coordinates: { lat: number, lon: number } | null; // coordinates of the event
+    coordinates: any | null; // coordinates of the event
     ownerUsername: string; 
     imageDocIDs?: string[]; // array of image document IDs associated with the event
     imageDisplayURLs?: string[]; // array of image display URLs associated with the event
@@ -174,15 +174,51 @@ export class Event implements IEvent {
         this.endDate = data.endDate; // end date of the event
         this.time = data.time; // time of the event
         this.location = data.location; // location of the event
-        this.coordinates = data.coordinates; // coordinates of the event
+        this.coordinates = this._cleanInputCoordinates(data.coordinates); // coordinates of the event
         this.ownerUsername = data.ownerUsername; 
         this.imageDocIDs = data.imageDocIDs; // array of image document IDs associated with the event
         this.imageDisplayURLs = data.imageDisplayURLs; // array of image display URLs associated with the event
         this.docID = data.docID; // Firestore document ID for the event, if applicable
     }
     toString() {
-        return `Event: ${this.eventName}, Artist: ${this.artistName}, Start Date: ${this.startDate}, End Date: ${this.endDate}, Time: ${this.time}, Location: ${this.location}, Coordinates: ${this.coordinates}, Instagram Owner Username: ${this.ownerUsername}`;
+      return `Event: ${this.eventName}, Artist: ${this.artistName}, Start Date: ${this.startDate}, End Date: ${this.endDate}, Time: ${this.time}, Location: ${this.location}, Coordinates: ${JSON.stringify(this.coordinates)}, Instagram Owner Username: ${this.ownerUsername}`;
     }
+    // handle coordinate inputs of format {lat: number, lon:number} or {latitude: number, longitude: number}
+    _cleanInputCoordinates(coordinates: object | null): { lat: number, lon: number } | null {
+      if (coordinates == null){
+        return null
+      }
+      else if (coordinates.hasOwnProperty('lat') && coordinates.hasOwnProperty('lon') ){
+        return {
+          lat: (coordinates as any).lat,
+          lon: (coordinates as any).lon,
+        }
+      }
+      else if (coordinates.hasOwnProperty('latitude') && coordinates.hasOwnProperty('longitude') ){
+        return {
+          lat: (coordinates as any).latitude,
+          lon: (coordinates as any).longitude,
+        }
+      }
+      return null
+    }
+    // getCoordinates(): object | null {
+    //   if (this.coordinates == null){
+    //     return null
+    //   }
+    //   else if (this.coordinates.lat != null && this.coordinates.lon != null){
+    //     return { 
+    //       lat: this.coordinates.lat, 
+    //       lon: this.coordinates.lon
+    //     }
+    //   }
+    //   else if (this.coordinates.latitude != null && this.coordinates.longitude != null){
+    //     return {
+
+    //     }
+    //   }
+    //   return null
+    // }
 }
 
 //https://firebase.google.com/docs/reference/js/firestore_.firestoredataconverter
@@ -251,3 +287,49 @@ export class EventConverter implements FirestoreDataConverter<Event, EventDbMode
 }
 
 export const sampleEvents = sampleEventJson.map(eventData => new Event(eventData as IEvent))
+
+if (require.main === module) {
+  const eventWithLatLon = new Event({
+    "artistName": "PIXXIE",
+    "ownerUsername": "pixxie_official",
+    "startDate": "2025-08-02",
+    "endDate": "2025-08-02",
+    "eventName": "งาน Sabb fest 2025 (เวทีเด็กแด้น) (Festival)",
+    "location": "ลานกิจกรรมเครื่องบิน Market (เมืองนครปฐม)",
+    "coordinates": {
+      "lat": 13.84051,
+      "lon": 100.04364
+    },
+    "time": "17:00"
+  })
+
+  const eventWithLatitudeLongitude = new Event({
+    "artistName": "PIXXIE",
+    "ownerUsername": "pixxie_official",
+    "startDate": "2025-08-02",
+    "endDate": "2025-08-02",
+    "eventName": "งาน Sabb fest 2025 (เวทีเด็กแด้น) (Festival)",
+    "location": "ลานกิจกรรมเครื่องบิน Market (เมืองนครปฐม)",
+    "coordinates": {
+      "latitude": 13.84051,
+      "longitude": 100.04364
+    },
+    "time": "17:00"
+  })
+
+  const eventWithNull = new Event({
+    "artistName": "PIXXIE",
+    "ownerUsername": "pixxie_official",
+    "startDate": "2025-08-02",
+    "endDate": "2025-08-02",
+    "eventName": "งาน Sabb fest 2025 (เวทีเด็กแด้น) (Festival)",
+    "location": "ลานกิจกรรมเครื่องบิน Market (เมืองนครปฐม)",
+    "coordinates": null,
+    "time": "17:00"
+  })
+
+  // Test the Event class
+  console.log(eventWithLatLon.toString())
+  console.log(eventWithLatitudeLongitude.toString())
+  console.log(eventWithNull.toString())
+}

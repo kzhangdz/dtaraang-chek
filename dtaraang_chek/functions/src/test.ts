@@ -148,9 +148,15 @@ async function parseEvents(posts: PostApify[]){
 
                         // update the events with the ownerUsername, image doc ID, display URL
                         events.forEach(event => {
+
+                            // TODO: add second round of geocoding through the Google Maps API?
+
                             event.ownerUsername = post.ownerUsername; // set the owner username from the post
                             event.imageDocIDs = [newImageDocId];
                             event.imageDisplayURLs = [image.firebaseDisplayURL ?? ""];
+                            if (event.endDate == null){
+                                event.endDate == event.startDate
+                            }
                         });
 
                         // for each event, save the event info into Firestore
